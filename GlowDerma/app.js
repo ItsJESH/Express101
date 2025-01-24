@@ -1,18 +1,44 @@
 import express from 'express';
+import fs from 'fs';
+import { rateLimit } from 'express-rate-limit'
 
 const PORT = process.env.PORT || 5000
 
 const app = express();
 
+const limit = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: "your limits exceeded"
+})
+
+app.use(limit)
+
 // Middleware to process JSON requests
 app.use(express.json());
+
+// for undefined routs middleware
+app.use((req, res) =>{
+    console.log(`undefined route hit: ${req.method} ${req.path}`);
+    res.status(404).send("We don't have this page yet!");
+})
+
+app.use((req, res, next)=>{
+    let logData = `${req.method} || ${req.path} || ${new Date().toISOString()} \n`;
+    fs.appendFile('log.txt',logData, (err)=>{
+        if(err) console.error(err);
+    })
+    next()
+})
+
+app.use("/assets",express.static('public'))
 
 app.get('/', (req,res)=>{
     res.send('Welcome to GlowDerma - Your Skincare Journey Begins Here');
 })
 
 app.get('/about', (req,res)=>{
-    res.send('<h3>We are a premium skincare brand committed to bringing you dermatologist-approved, clean beauty products</h3>')
+    res.send('h3>We are a premium skincare brand committed to bringing you dermatologist-approved, clean beauty products</h3>')
 });
 
 const contactDetails = {
@@ -129,6 +155,12 @@ app.post('/cart', (req,res)=>{
 app.get('*', (req, res)=>{
     res.status(404).json({
         "error": "Route not found"
+      })
+})
+
+app.use((error, req, res)=>{
+    res.status(500).json({
+        "error": error.message
       })
 })
 
