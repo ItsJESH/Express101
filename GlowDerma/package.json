@@ -2,6 +2,7 @@
   "name": "glowderma",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +11,8 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0"
+    "express-rate-limit": "^7.5.0",
+    "handlebars": "^4.7.8",
+    "hbs": "^4.2.0"
   }
 }
